@@ -1,4 +1,25 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// Simple storage abstraction — uses localStorage on web,
+// which also works in React Native via react-native-web.
+// For native builds, swap to @react-native-async-storage/async-storage.
+const AsyncStorage = {
+  async getItem(key: string): Promise<string | null> {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  async setItem(key: string, value: string): Promise<void> {
+    try {
+      localStorage.setItem(key, value);
+    } catch {}
+  },
+  async removeItem(key: string): Promise<void> {
+    try {
+      localStorage.removeItem(key);
+    } catch {}
+  },
+};
 
 // ── Constants ────────────────────────────────────────────────────────────────
 

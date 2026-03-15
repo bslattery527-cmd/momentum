@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,21 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
+  Pressable,
 } from 'react-native';
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons';
+
+// Conditionally import BottomSheet — on web we use a Modal fallback
+let BottomSheet: any = null;
+let BottomSheetScrollView: any = ScrollView;
+if (Platform.OS !== 'web') {
+  try {
+    const bs = require('@gorhom/bottom-sheet');
+    BottomSheet = bs.default;
+    BottomSheetScrollView = bs.BottomSheetScrollView;
+  } catch {}
+}
 import TaskInput, { type TaskData } from './TaskInput';
 import ImagePickerComponent from './ImagePicker';
 import UserSearchModal from '@/components/common/UserSearchModal';
@@ -25,7 +37,7 @@ import { colors, spacing, typography } from '@/constants/theme';
 
 interface LogSheetProps {
   /** Ref to control the bottom sheet from parent */
-  bottomSheetRef: React.RefObject<BottomSheet>;
+  bottomSheetRef?: React.RefObject<any>;
   /** Pre-filled duration from stopwatch (in seconds) */
   prefillDuration?: number;
   /** Pre-filled start/end timestamps from stopwatch */
@@ -35,6 +47,8 @@ interface LogSheetProps {
   onStartActivity?: () => void;
   /** Called after successful log creation */
   onSuccess?: () => void;
+  /** Called when the sheet should close (required on web) */
+  onClose?: () => void;
 }
 
 const NOTE_MAX_LENGTH = 280;
@@ -55,6 +69,7 @@ export default function LogSheet({
   prefillEndedAt,
   onStartActivity,
   onSuccess,
+  onClose,
 }: LogSheetProps) {
   // Form state
   const [title, setTitle] = useState('');
@@ -218,18 +233,26 @@ export default function LogSheet({
 
   return (
     <>
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={-1}
-        snapPoints={snapPoints}
-        enablePanDownToClose
-        backgroundStyle={styles.sheetBackground}
-        handleIndicatorStyle={styles.handleIndicator}
-      >
-        <BottomSheetScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
+      {Platform.OS === 'web' ? (
+        <Modal
+          visible={true}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={onClose}
         >
+          <Pressable style={styles.modalOverlay} onPress={onClose}>
+            <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
+              <View style={styles.modalHandle}>
+                <View style={styles.handleIndicator} />
+                <Pressable onPress={onClose} style={styles.closeButton} hitSlop={8}>
+                  <Ionicons name="close" size={24} color={colors.textSecondary} />
+                </Pressable>
+              </View>
+              <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={true}
+              >
           {/* Header */}
           <Text style={styles.sheetTitle}>Log a Session</Text>
 
@@ -369,8 +392,40 @@ export default function LogSheet({
               )}
             </TouchableOpacity>
           </View>
-        </BottomSheetScrollView>
-      </BottomSheet>
+        </ScrollView>
+      </Pressable>
+    </Pressable>
+  </Modal>
+      ) : BottomSheet ? (
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={0}
+          snapPoints={snapPoints}
+          enablePanDownToClose
+          backgroundStyle={styles.sheetBackground}
+          handleIndicatorStyle={styles.handleIndicator}
+          onClose={onClose}
+        >
+          <BottomSheetScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Header */}
+            <Text style={styles.sheetTitle}>Log a Session</Text>
+            <Text style={styles.fieldLabel}>Title *</Text>
+            <TextInput
+              style={styles.titleInput}
+              placeholder="What session is this?"
+              placeholderTextColor={colors.textTertiary}
+              value={title}
+              onChangeText={setTitle}
+              maxLength={120}
+              returnKeyType="next"
+            />
+            <Text style={styles.submitButtonText}>Use the web version for full form</Text>
+          </BottomSheetScrollView>
+        </BottomSheet>
+      ) : null}
 
       {/* Tag Users Modal */}
       <UserSearchModal
@@ -387,6 +442,31 @@ export default function LogSheet({
 // ── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '90%',
+    minHeight: '60%',
+  },
+  modalHandle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xs,
+    paddingHorizontal: spacing.lg,
+  },
+  closeButton: {
+    position: 'absolute',
+    right: spacing.lg,
+    top: spacing.md,
+  },
   sheetBackground: {
     backgroundColor: colors.background,
     borderTopLeftRadius: 20,
@@ -395,6 +475,8 @@ const styles = StyleSheet.create({
   handleIndicator: {
     backgroundColor: colors.border,
     width: 40,
+    height: 4,
+    borderRadius: 2,
   },
   scrollContent: {
     paddingHorizontal: spacing.lg,

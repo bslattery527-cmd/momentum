@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -22,11 +22,15 @@ import {
 import { useHomeFeed, useCurrentGoal } from '@/hooks/useFeed';
 import { FeedCard } from '@/components/feed/FeedCard';
 import { GoalWidget } from '@/components/profile/GoalWidget';
+import LogSheet from '@/components/log/LogSheet';
 import { api } from '@/lib/api';
 import { queryClient } from '@/lib/queryClient';
 import type { FeedItem } from '@/types';
 
 export default function HomeScreen() {
+  const [logSheetVisible, setLogSheetVisible] = useState(false);
+  const bottomSheetRef = useRef<any>(null);
+
   const {
     data,
     isLoading,
@@ -187,9 +191,24 @@ export default function HomeScreen() {
       />
 
       {/* ─── FAB for Log Creation ─────────────────────────── */}
-      <Pressable style={styles.fab}>
+      <Pressable
+        style={styles.fab}
+        onPress={() => setLogSheetVisible(true)}
+      >
         <Ionicons name="add" size={28} color={Colors.textInverse} />
       </Pressable>
+
+      {/* ─── Log Creation Bottom Sheet ───────────────────── */}
+      {logSheetVisible && (
+        <LogSheet
+          bottomSheetRef={bottomSheetRef}
+          onClose={() => setLogSheetVisible(false)}
+          onSuccess={() => {
+            setLogSheetVisible(false);
+            refetch();
+          }}
+        />
+      )}
     </View>
   );
 }

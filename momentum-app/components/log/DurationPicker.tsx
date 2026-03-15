@@ -1,6 +1,5 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { colors, spacing, typography } from '@/constants/theme';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -24,22 +23,6 @@ export default function DurationPicker({
   const hours = Math.floor(value / 3600);
   const minutes = Math.floor((value % 3600) / 60);
 
-  const hourItems = useMemo(
-    () =>
-      Array.from({ length: 24 }, (_, i) => (
-        <Picker.Item key={i} label={`${i}`} value={i} />
-      )),
-    [],
-  );
-
-  const minuteItems = useMemo(
-    () =>
-      Array.from({ length: 60 }, (_, i) => (
-        <Picker.Item key={i} label={i.toString().padStart(2, '0')} value={i} />
-      )),
-    [],
-  );
-
   const handleHourChange = useCallback(
     (newHours: number) => {
       onChange(newHours * 3600 + minutes * 60);
@@ -61,14 +44,24 @@ export default function DurationPicker({
         <View style={styles.pickerColumn}>
           <Text style={styles.pickerLabel}>Hours</Text>
           <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={hours}
-              onValueChange={handleHourChange}
-              style={styles.picker}
-              itemStyle={styles.pickerItem}
+            <select
+              value={hours}
+              onChange={(e: any) => handleHourChange(Number(e.target.value))}
+              style={{
+                width: '100%',
+                height: 44,
+                border: 'none',
+                backgroundColor: 'transparent',
+                fontSize: 18,
+                textAlign: 'center',
+                color: colors.text,
+                outline: 'none',
+              } as any}
             >
-              {hourItems}
-            </Picker>
+              {Array.from({ length: 24 }, (_, i) => (
+                <option key={i} value={i}>{i}</option>
+              ))}
+            </select>
           </View>
         </View>
 
@@ -77,14 +70,24 @@ export default function DurationPicker({
         <View style={styles.pickerColumn}>
           <Text style={styles.pickerLabel}>Minutes</Text>
           <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={minutes}
-              onValueChange={handleMinuteChange}
-              style={styles.picker}
-              itemStyle={styles.pickerItem}
+            <select
+              value={minutes}
+              onChange={(e: any) => handleMinuteChange(Number(e.target.value))}
+              style={{
+                width: '100%',
+                height: 44,
+                border: 'none',
+                backgroundColor: 'transparent',
+                fontSize: 18,
+                textAlign: 'center',
+                color: colors.text,
+                outline: 'none',
+              } as any}
             >
-              {minuteItems}
-            </Picker>
+              {Array.from({ length: 60 }, (_, i) => (
+                <option key={i} value={i}>{i.toString().padStart(2, '0')}</option>
+              ))}
+            </select>
           </View>
         </View>
       </View>
@@ -122,14 +125,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     width: '100%',
-  },
-  picker: {
-    width: '100%',
-    height: Platform.OS === 'ios' ? 150 : 50,
-  },
-  pickerItem: {
-    fontSize: 20,
-    color: colors.text,
   },
   separator: {
     fontSize: 24,

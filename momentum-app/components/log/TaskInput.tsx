@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import DurationPicker from './DurationPicker';
 import { useCategories } from '@/hooks/useLog';
@@ -86,21 +86,52 @@ export default function TaskInput({
           <ActivityIndicator size="small" color={colors.primary} />
         ) : (
           <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={task.category_id}
-              onValueChange={(value) => updateField('category_id', value)}
-              style={styles.categoryPicker}
-              accessibilityLabel="Select category"
-            >
-              <Picker.Item label="Select category..." value="" />
-              {categories?.map((cat: Category) => (
-                <Picker.Item
-                  key={cat.id}
-                  label={`${cat.icon ?? ''} ${cat.name}`.trim()}
-                  value={cat.id}
-                />
-              ))}
-            </Picker>
+            {Platform.OS === 'web' ? (
+              // Web: use native <select> via a hidden approach
+              <View style={styles.categoryPicker}>
+                <select
+                  value={task.category_id}
+                  onChange={(e: any) => updateField('category_id', e.target.value)}
+                  style={{
+                    width: '100%',
+                    height: 40,
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    fontSize: 14,
+                    color: task.category_id ? colors.text : colors.textTertiary,
+                    outline: 'none',
+                  } as any}
+                >
+                  <option value="">Select category...</option>
+                  {categories?.map((cat: Category) => (
+                    <option key={cat.id} value={cat.id}>
+                      {`${cat.icon ?? ''} ${cat.name}`.trim()}
+                    </option>
+                  ))}
+                </select>
+              </View>
+            ) : (
+              // Native: simple touchable category buttons
+              <View style={styles.categoryList}>
+                {categories?.map((cat: Category) => (
+                  <TouchableOpacity
+                    key={cat.id}
+                    style={[
+                      styles.categoryChip,
+                      task.category_id === cat.id && styles.categoryChipActive,
+                    ]}
+                    onPress={() => updateField('category_id', cat.id)}
+                  >
+                    <Text style={[
+                      styles.categoryChipText,
+                      task.category_id === cat.id && styles.categoryChipTextActive,
+                    ]}>
+                      {cat.icon ?? ''} {cat.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
         )}
       </View>
@@ -177,6 +208,33 @@ const styles = StyleSheet.create({
   categoryPicker: {
     width: '100%',
     color: colors.text,
+    paddingHorizontal: spacing.xs,
+  },
+  categoryList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    padding: spacing.xs,
+  },
+  categoryChip: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: 16,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  categoryChipActive: {
+    backgroundColor: colors.primaryLight ?? '#E8F0FE',
+    borderColor: colors.primary,
+  },
+  categoryChipText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+  },
+  categoryChipTextActive: {
+    color: colors.primary,
+    fontWeight: '600',
   },
   addButton: {
     flexDirection: 'row',
