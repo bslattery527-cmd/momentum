@@ -37,3 +37,13 @@ desktop.ini
 
 # Claude
 .claude/settings.local.json
+
+# Temp files
+bundle_check.txt
+
+# Expo
+.expo/
+*.tsbuildinfo
+
+# Prisma
+momentum-api/prisma/migrations/

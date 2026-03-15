@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String?  @map("password_hash")
+  displayName  String   @map("display_name")
+  username     String   @unique
+  avatarUrl    String?  @map("avatar_url")
+  bio          String?
+  goalCategory String?  @map("goal_category")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  oauthAccounts OauthAccount[]
+  logs          Log[]
+  taggedLogs    LogTaggedUser[]
+  follows       Follow[]       @relation("follower")
+  followers     Follow[]       @relation("following")
+  reactions     Reaction[]
+  comments      Comment[]
+  streak        Streak?
+  goals         Goal[]
+  sentNotifications     Notification[] @relation("actor")
+  receivedNotifications Notification[] @relation("recipient")
+  pushTokens    PushToken[]
+
+  @@map("users")
+}
+
+model OauthAccount {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  provider   String
+  providerId String   @map("provider_id")
+  email      String?
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@map("oauth_accounts")
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  icon      String?
+  isDefault Boolean  @default(false) @map("is_default")
+
+  logTasks LogTask[]
+
+  @@map("categories")
+}
+
+model Log {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  title         String
+  note          String?
+  totalDuration Int       @default(0) @map("total_duration")
+  startedAt     DateTime? @map("started_at") @db.Timestamptz
+  endedAt       DateTime? @map("ended_at") @db.Timestamptz
+  isPublished   Boolean   @default(false) @map("is_published")
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks      LogTask[]
+  images     LogImage[]
+  taggedUsers LogTaggedUser[]
+  reactions  Reaction[]
+  comments   Comment[]
+
+  @@index([userId, createdAt(sort: Desc)], name: "idx_logs_user_id_created")
+  @@index([isPublished, publishedAt(sort: Desc)], name: "idx_logs_published")
+  @@map("logs")
+}
+
+model LogTask {
+  id         String   @id @default(uuid()) @db.Uuid
+  logId      String   @map("log_id") @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
+  taskName   String   @map("task_name")
+  duration   Int
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  log      Log      @relation(fields: [logId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@map("log_tasks")
+}
+
+model LogImage {
+  id        String   @id @default(uuid()) @db.Uuid
+  logId     String?  @map("log_id") @db.Uuid
+  s3Key     String   @map("s3_key")
+  publicUrl String   @map("public_url")
+  mimeType  String   @map("mime_type")
+  fileSize  Int      @map("file_size")
+  width     Int?
+  height    Int?
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  log Log? @relation(fields: [logId], references: [id], onDelete: Cascade)
+
+  @@index([logId, sortOrder(sort: Asc)], name: "idx_log_images_log")
+  @@map("log_images")
+}
+
+model LogTaggedUser {
+  logId     String   @map("log_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  log  Log  @relation(fields: [logId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([logId, userId])
+  @@map("log_tagged_users")
+}
+
+model Follow {
+  followerId  String   @map("follower_id") @db.Uuid
+  followingId String   @map("following_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followingId], name: "idx_follows_following")
+  @@index([followerId], name: "idx_follows_follower")
+  @@map("follows")
+}
+
+model Reaction {
+  id        String   @id @default(uuid()) @db.Uuid
+  logId     String   @map("log_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  log  Log  @relation(fields: [logId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([logId, userId])
+  @@map("reactions")
+}
+
+model Comment {
+  id        String   @id @default(uuid()) @db.Uuid
+  logId     String   @map("log_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  body      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  log  Log  @relation(fields: [logId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([logId, createdAt(sort: Asc)], name: "idx_comments_log")
+  @@map("comments")
+}
+
+model Streak {
+  userId        String   @id @map("user_id") @db.Uuid
+  currentStreak Int      @default(0) @map("current_streak")
+  longestStreak Int      @default(0) @map("longest_streak")
+  lastLogDate   DateTime? @map("last_log_date") @db.Date
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("streaks")
+}
+
+model Goal {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  type          String
+  target        Int
+  weekStart     DateTime @map("week_start") @db.Date
+  daysLogged    Int      @default(0) @map("days_logged")
+  minutesLogged Int      @default(0) @map("minutes_logged")
+  isCompleted   Boolean  @default(false) @map("is_completed")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("goals")
+}
+
+model Notification {
+  id          String   @id @default(uuid()) @db.Uuid
+  recipientId String   @map("recipient_id") @db.Uuid
+  actorId     String   @map("actor_id") @db.Uuid
+  type        String
+  entityType  String?  @map("entity_type")
+  entityId    String?  @map("entity_id") @db.Uuid
+  isRead      Boolean  @default(false) @map("is_read")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  recipient User @relation("recipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor     User @relation("actor", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, createdAt(sort: Desc)], name: "idx_notifications_recipient")
+  @@map("notifications")
+}
+
+model PushToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  platform  String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("push_tokens")
+}
