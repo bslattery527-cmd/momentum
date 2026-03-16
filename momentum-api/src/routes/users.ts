@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { getAvatarUploadUrl } from '../services/imageService.js';
+import { getAvatarUploadUrl, getPublicObjectUrl } from '../services/imageService.js';
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/;
 
@@ -332,7 +332,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
         })),
         images: log.images.map((img) => ({
           id: img.id,
-          public_url: img.publicUrl,
+          public_url: getPublicObjectUrl(img.s3Key),
           width: img.width,
           height: img.height,
           sort_order: img.sortOrder,
@@ -454,7 +454,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
         })),
         images: log.images.map((img) => ({
           id: img.id,
-          public_url: img.publicUrl,
+          public_url: getPublicObjectUrl(img.s3Key),
           width: img.width,
           height: img.height,
           sort_order: img.sortOrder,

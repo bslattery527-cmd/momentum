@@ -1,7 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { updateStreak } from '../services/streakService.js';
 import { updateGoalProgress } from '../services/goalService.js';
-import { validateImageUploads, reserveImageUploads, commitImagesToLog, deleteS3Objects } from '../services/imageService.js';
+import { validateImageUploads, reserveImageUploads, commitImagesToLog, deleteS3Objects, getPublicObjectUrl } from '../services/imageService.js';
 import { sendNotification } from '../services/pushService.js';
 
 const logRoutes: FastifyPluginAsync = async (fastify) => {
@@ -196,7 +196,7 @@ const logRoutes: FastifyPluginAsync = async (fastify) => {
         })),
         images: fullLog!.images.map((img) => ({
           id: img.id,
-          public_url: img.publicUrl,
+          public_url: getPublicObjectUrl(img.s3Key),
           width: img.width,
           height: img.height,
           sort_order: img.sortOrder,
@@ -305,7 +305,7 @@ const logRoutes: FastifyPluginAsync = async (fastify) => {
         })),
         images: log.images.map((img) => ({
           id: img.id,
-          public_url: img.publicUrl,
+          public_url: getPublicObjectUrl(img.s3Key),
           width: img.width,
           height: img.height,
           sort_order: img.sortOrder,
@@ -492,7 +492,7 @@ const logRoutes: FastifyPluginAsync = async (fastify) => {
         })),
         images: updatedLog!.images.map((img) => ({
           id: img.id,
-          public_url: img.publicUrl,
+          public_url: getPublicObjectUrl(img.s3Key),
           width: img.width,
           height: img.height,
           sort_order: img.sortOrder,

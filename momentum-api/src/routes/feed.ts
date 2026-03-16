@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
+import { getPublicObjectUrl } from '../services/imageService.js';
 
 const feedRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /feed — Home feed: published logs from followed users, reverse-chron
@@ -116,7 +117,7 @@ const feedRoutes: FastifyPluginAsync = async (fastify) => {
       })),
       images: log.images.map((img) => ({
         id: img.id,
-        public_url: img.publicUrl,
+        public_url: getPublicObjectUrl(img.s3Key),
         width: img.width,
         height: img.height,
         sort_order: img.sortOrder,
@@ -245,7 +246,7 @@ const feedRoutes: FastifyPluginAsync = async (fastify) => {
       })),
       images: log.images.map((img) => ({
         id: img.id,
-        public_url: img.publicUrl,
+        public_url: getPublicObjectUrl(img.s3Key),
         width: img.width,
         height: img.height,
         sort_order: img.sortOrder,

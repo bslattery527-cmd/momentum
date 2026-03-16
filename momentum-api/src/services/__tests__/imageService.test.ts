@@ -5,6 +5,10 @@ const { mockSend, mockGetSignedUrl } = vi.hoisted(() => ({
   mockGetSignedUrl: vi.fn(),
 }));
 
+vi.mock('node:crypto', () => ({
+  randomUUID: () => 'avatar-key',
+}));
+
 vi.mock('@aws-sdk/client-s3', () => ({
   S3Client: class {
     send = mockSend;
@@ -119,7 +123,7 @@ describe('imageService', () => {
 
     await expect(getAvatarUploadUrl('user-1', 'image/webp', 2048)).resolves.toEqual({
       upload_url: 'https://signed.example/upload',
-      public_url: 'https://cdn.test/avatars/user-1.webp',
+      public_url: 'https://cdn.test/avatars/user-1/avatar-key.webp',
     });
   });
 

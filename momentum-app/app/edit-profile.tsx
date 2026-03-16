@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -13,10 +14,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 
-import { Colors, Typography, Spacing, BorderRadius } from '@/constants/theme';
+import { Colors, Typography, Spacing, BorderRadius, Layout } from '@/constants/theme';
 import { api } from '@/lib/api';
+import { uploadAvatar, type AvatarUploadAsset } from '@/lib/avatarUpload';
 import { queryClient } from '@/lib/queryClient';
 import { useAuthStore } from '@/store/authStore';
 import type { UpdateUserPayload, User } from '@/types';
@@ -35,9 +38,35 @@ export default function EditProfileScreen() {
   const [displayName, setDisplayName] = useState(user?.display_name ?? '');
   const [bio, setBio] = useState(user?.bio ?? '');
   const [goalCategory, setGoalCategory] = useState(user?.goal_category ?? null);
+  const [avatarAsset, setAvatarAsset] = useState<AvatarUploadAsset | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const canSave = useMemo(() => displayName.trim().length >= 2 && !isSaving, [displayName, isSaving]);
+  const avatarPreviewUri = avatarAsset?.uri ?? user?.avatar_url ?? null;
+
+  const pickAvatar = useCallback(async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Please grant photo library access to update your avatar.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      setAvatarAsset({
+        uri: asset.uri,
+        mimeType: asset.mimeType,
+        fileSize: asset.fileSize,
+      });
+    }
+  }, []);
 
   const handleSave = useCallback(async () => {
     if (!displayName.trim()) {
@@ -54,11 +83,17 @@ export default function EditProfileScreen() {
         goal_category: goalCategory,
       };
 
+      if (avatarAsset) {
+        payload.avatar_url = await uploadAvatar(avatarAsset);
+      }
+
       const response = await api.put('/users/me', payload);
       const updatedUser = response.data as User;
 
       setUser(updatedUser);
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       router.back();
     } catch (error: any) {
       const message =
@@ -68,7 +103,7 @@ export default function EditProfileScreen() {
     } finally {
       setIsSaving(false);
     }
-  }, [bio, displayName, goalCategory, setUser]);
+  }, [avatarAsset, bio, displayName, goalCategory, setUser]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -95,6 +130,30 @@ export default function EditProfileScreen() {
         </View>
 
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <View style={styles.avatarSection}>
+            <Pressable style={styles.avatarPicker} onPress={pickAvatar}>
+              {avatarPreviewUri ? (
+                <Image source={{ uri: avatarPreviewUri }} style={styles.avatarImage} />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Ionicons name="camera" size={32} color={Colors.textTertiary} />
+                </View>
+              )}
+            </Pressable>
+
+            <View style={styles.avatarCopy}>
+              <Text style={styles.label}>Profile photo</Text>
+              <Text style={styles.avatarHelpText}>
+                Upload a square image. PNG, JPG, and WebP are supported.
+              </Text>
+              <Pressable onPress={pickAvatar}>
+                <Text style={styles.avatarActionText}>
+                  {avatarPreviewUri ? 'Change photo' : 'Add photo'}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Display name</Text>
             <TextInput
@@ -192,6 +251,42 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.xl,
     gap: Spacing.xl,
+  },
+  avatarSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.lg,
+  },
+  avatarPicker: {
+    borderRadius: Layout.avatarSizeXl / 2,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: Layout.avatarSizeXl,
+    height: Layout.avatarSizeXl,
+    borderRadius: Layout.avatarSizeXl / 2,
+  },
+  avatarPlaceholder: {
+    width: Layout.avatarSizeXl,
+    height: Layout.avatarSizeXl,
+    borderRadius: Layout.avatarSizeXl / 2,
+    backgroundColor: Colors.backgroundSecondary,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarCopy: {
+    flex: 1,
+    gap: Spacing.xs,
+  },
+  avatarHelpText: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
+  avatarActionText: {
+    ...Typography.buttonSmall,
+    color: Colors.primary,
   },
   fieldGroup: {
     gap: Spacing.sm,

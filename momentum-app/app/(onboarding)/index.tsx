@@ -23,6 +23,7 @@ import {
   Layout,
 } from '@/constants/theme';
 import { api } from '@/lib/api';
+import { uploadAvatar as uploadAvatarAsset, type AvatarUploadAsset } from '@/lib/avatarUpload';
 import { useAuthStore } from '@/store/authStore';
 import type { UpdateUserPayload, User } from '@/types';
 
@@ -43,7 +44,7 @@ export default function OnboardingScreen() {
 
   const [stepIndex, setStepIndex] = useState(0);
   const [displayName, setDisplayName] = useState(user?.display_name || '');
-  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [avatarAsset, setAvatarAsset] = useState<AvatarUploadAsset | null>(null);
   const [bio, setBio] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,43 +72,21 @@ export default function OnboardingScreen() {
     });
 
     if (!result.canceled && result.assets[0]) {
-      setAvatarUri(result.assets[0].uri);
+      const asset = result.assets[0];
+      setAvatarAsset({
+        uri: asset.uri,
+        mimeType: asset.mimeType,
+        fileSize: asset.fileSize,
+      });
     }
   }, []);
 
   // ─── Upload Avatar to S3 ───────────────────────────────────────────────
 
   const uploadAvatar = useCallback(async (): Promise<string | null> => {
-    if (!avatarUri) return null;
-
-    try {
-      // Fetch the image blob to determine file size
-      const imageBlob = await fetch(avatarUri);
-      const blob = await imageBlob.blob();
-
-      // Get pre-signed URL from the API (requires mime_type and file_size)
-      const uploadResponse = await api.post('/users/me/avatar-upload', {
-        mime_type: 'image/jpeg',
-        file_size: blob.size,
-      });
-      const { upload_url, public_url } = uploadResponse.data as {
-        upload_url: string;
-        public_url: string;
-      };
-
-      // Upload to S3
-      await fetch(upload_url, {
-        method: 'PUT',
-        body: blob,
-        headers: { 'Content-Type': 'image/jpeg' },
-      });
-
-      return public_url;
-    } catch {
-      // Avatar upload is optional — don't block onboarding
-      return null;
-    }
-  }, [avatarUri]);
+    if (!avatarAsset) return null;
+    return uploadAvatarAsset(avatarAsset);
+  }, [avatarAsset]);
 
   // ─── Save Profile ─────────────────────────────────────────────────────
 
@@ -130,7 +109,7 @@ export default function OnboardingScreen() {
       }
 
       // Upload avatar if selected
-      if (avatarUri) {
+      if (avatarAsset) {
         const avatarUrl = await uploadAvatar();
         if (avatarUrl) {
           payload.avatar_url = avatarUrl;
@@ -149,7 +128,7 @@ export default function OnboardingScreen() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [displayName, bio, selectedCategory, avatarUri, uploadAvatar, setUser, setOnboardingComplete]);
+  }, [displayName, bio, selectedCategory, avatarAsset, uploadAvatar, setUser, setOnboardingComplete]);
 
   // ─── Navigation ──────────────────────────────────────────────────────
 
@@ -224,8 +203,8 @@ export default function OnboardingScreen() {
               Help others recognize you in the feed
             </Text>
             <Pressable onPress={pickAvatar} style={styles.avatarPicker}>
-              {avatarUri ? (
-                <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+              {avatarAsset?.uri ? (
+                <Image source={{ uri: avatarAsset.uri }} style={styles.avatarImage} />
               ) : (
                 <View style={styles.avatarPlaceholder}>
                   <Ionicons name="camera" size={32} color={Colors.textTertiary} />
@@ -233,7 +212,7 @@ export default function OnboardingScreen() {
                 </View>
               )}
             </Pressable>
-            {avatarUri && (
+            {avatarAsset?.uri && (
               <Pressable onPress={pickAvatar} style={styles.changePhotoButton}>
                 <Text style={styles.changePhotoText}>Change photo</Text>
               </Pressable>

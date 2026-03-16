@@ -36,6 +36,12 @@ function getMimeExtension(mimeType: string): string {
   }
 }
 
+export function getPublicObjectUrl(s3Key: string): string {
+  const bucket = process.env.S3_BUCKET_NAME || 'momentum-uploads';
+  const cdnBase = process.env.CDN_BASE_URL || `https://${bucket}.s3.amazonaws.com`;
+  return `${cdnBase.replace(/\/$/, '')}/${s3Key}`;
+}
+
 export interface ImageUploadRequest {
   mime_type: string;
   file_size: number;
@@ -82,7 +88,6 @@ export async function reserveImageUploads(
 ): Promise<ImageUploadResult[]> {
   const s3 = getS3Client();
   const bucket = process.env.S3_BUCKET_NAME || 'momentum-uploads';
-  const cdnBase = process.env.CDN_BASE_URL || `https://${bucket}.s3.amazonaws.com`;
 
   const results: ImageUploadResult[] = [];
 
@@ -91,7 +96,7 @@ export async function reserveImageUploads(
     const imageId = randomUUID();
     const ext = getMimeExtension(img.mime_type);
     const s3Key = `log-images/${imageId}.${ext}`;
-    const publicUrl = `${cdnBase}/${s3Key}`;
+    const publicUrl = getPublicObjectUrl(s3Key);
 
     // Create pending LogImage record (logId = null means pending)
     await prisma.logImage.create({
@@ -184,10 +189,9 @@ export async function getAvatarUploadUrl(
 
   const s3 = getS3Client();
   const bucket = process.env.S3_BUCKET_NAME || 'momentum-uploads';
-  const cdnBase = process.env.CDN_BASE_URL || `https://${bucket}.s3.amazonaws.com`;
   const ext = getMimeExtension(mimeType);
-  const s3Key = `avatars/${userId}.${ext}`;
-  const publicUrl = `${cdnBase}/${s3Key}`;
+  const s3Key = `avatars/${userId}/${randomUUID()}.${ext}`;
+  const publicUrl = getPublicObjectUrl(s3Key);
 
   const command = new PutObjectCommand({
     Bucket: bucket,
