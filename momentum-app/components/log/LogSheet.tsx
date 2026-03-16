@@ -231,6 +231,146 @@ export default function LogSheet({
 
   // ── Render ───────────────────────────────────────────────────────────────
 
+  const renderFormContent = () => (
+    <>
+      <Text style={styles.sheetTitle}>Log a Session</Text>
+
+      <Text style={styles.fieldLabel}>Title *</Text>
+      <TextInput
+        style={styles.titleInput}
+        placeholder="What session is this?"
+        placeholderTextColor={colors.textTertiary}
+        value={title}
+        onChangeText={setTitle}
+        maxLength={120}
+        returnKeyType="next"
+        accessibilityLabel="Session title"
+      />
+
+      <Text style={styles.sectionLabel}>Tasks</Text>
+      {tasks.map((task, index) => (
+        <TaskInput
+          key={index}
+          task={task}
+          index={index}
+          totalTasks={tasks.length}
+          onChange={handleTaskChange}
+          onRemove={handleRemoveTask}
+          onAdd={handleAddTask}
+        />
+      ))}
+
+      <Text style={styles.fieldLabel}>Reflection (optional)</Text>
+      <View style={styles.noteContainer}>
+        <TextInput
+          style={styles.noteInput}
+          placeholder="How did it go?"
+          placeholderTextColor={colors.textTertiary}
+          value={note}
+          onChangeText={setNote}
+          maxLength={NOTE_MAX_LENGTH}
+          multiline
+          numberOfLines={3}
+          textAlignVertical="top"
+          accessibilityLabel="Reflection note"
+        />
+        <Text
+          style={[
+            styles.charCounter,
+            note.length > NOTE_MAX_LENGTH - 20 && styles.charCounterWarning,
+          ]}
+        >
+          {note.length}/{NOTE_MAX_LENGTH}
+        </Text>
+      </View>
+
+      <ImagePickerComponent
+        images={images}
+        onImagesChange={handleImagesChange}
+        onImageIdsReady={handleImageIdsReady}
+        maxImages={4}
+      />
+
+      <TouchableOpacity
+        style={styles.tagButton}
+        onPress={() => setShowTagModal(true)}
+        accessibilityLabel="Tag users"
+        accessibilityRole="button"
+      >
+        <Ionicons
+          name="people-outline"
+          size={20}
+          color={colors.primary}
+        />
+        <Text style={styles.tagButtonText}>
+          {taggedUserIds.length > 0
+            ? `${taggedUserIds.length} user${taggedUserIds.length > 1 ? 's' : ''} tagged`
+            : 'Tag users'}
+        </Text>
+      </TouchableOpacity>
+
+      <View style={styles.shareRow}>
+        <View style={styles.shareTextWrapper}>
+          <Text style={styles.shareLabel}>Share to feed</Text>
+          <Text style={styles.shareHint}>
+            Make this session visible to your followers
+          </Text>
+        </View>
+        <Switch
+          value={isPublished}
+          onValueChange={setIsPublished}
+          trackColor={{ false: colors.border, true: colors.primary }}
+          thumbColor={colors.background}
+          accessibilityLabel="Share to feed toggle"
+        />
+      </View>
+
+      <View style={styles.actionRow}>
+        <TouchableOpacity
+          style={styles.activityButton}
+          onPress={handleStartActivity}
+          accessibilityLabel="Start activity timer"
+          accessibilityRole="button"
+        >
+          <Ionicons
+            name="timer-outline"
+            size={20}
+            color={colors.primary}
+          />
+          <Text style={styles.activityButtonText}>Start Activity</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.submitButton,
+            createLog.isPending && styles.submitButtonDisabled,
+          ]}
+          onPress={handleSubmit}
+          disabled={createLog.isPending}
+          nativeID={Platform.OS === 'web' ? 'log-sheet-submit' : undefined}
+          accessibilityLabel="Log session"
+          accessibilityRole="button"
+          testID="log-sheet-submit"
+          dataSet={Platform.OS === 'web' ? { testid: 'log-sheet-submit' } : undefined}
+          {...(Platform.OS === 'web' ? ({ id: 'log-sheet-submit' } as any) : {})}
+        >
+          {createLog.isPending ? (
+            <Text style={styles.submitButtonText}>Saving...</Text>
+          ) : (
+            <>
+              <Ionicons
+                name="checkmark-circle"
+                size={20}
+                color={colors.background}
+              />
+              <Text style={styles.submitButtonText}>Log It</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
   return (
     <>
       {Platform.OS === 'web' ? (
@@ -268,150 +408,8 @@ export default function LogSheet({
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={true}
               >
-          {/* Header */}
-          <Text style={styles.sheetTitle}>Log a Session</Text>
-
-          {/* Title Input */}
-          <Text style={styles.fieldLabel}>Title *</Text>
-          <TextInput
-            style={styles.titleInput}
-            placeholder="What session is this?"
-            placeholderTextColor={colors.textTertiary}
-            value={title}
-            onChangeText={setTitle}
-            maxLength={120}
-            returnKeyType="next"
-            accessibilityLabel="Session title"
-          />
-
-          {/* Tasks */}
-          <Text style={styles.sectionLabel}>Tasks</Text>
-          {tasks.map((task, index) => (
-            <TaskInput
-              key={index}
-              task={task}
-              index={index}
-              totalTasks={tasks.length}
-              onChange={handleTaskChange}
-              onRemove={handleRemoveTask}
-              onAdd={handleAddTask}
-            />
-          ))}
-
-          {/* Note */}
-          <Text style={styles.fieldLabel}>Reflection (optional)</Text>
-          <View style={styles.noteContainer}>
-            <TextInput
-              style={styles.noteInput}
-              placeholder="How did it go?"
-              placeholderTextColor={colors.textTertiary}
-              value={note}
-              onChangeText={setNote}
-              maxLength={NOTE_MAX_LENGTH}
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-              accessibilityLabel="Reflection note"
-            />
-            <Text
-              style={[
-                styles.charCounter,
-                note.length > NOTE_MAX_LENGTH - 20 && styles.charCounterWarning,
-              ]}
-            >
-              {note.length}/{NOTE_MAX_LENGTH}
-            </Text>
-          </View>
-
-          {/* Image Picker */}
-          <ImagePickerComponent
-            images={images}
-            onImagesChange={handleImagesChange}
-            onImageIdsReady={handleImageIdsReady}
-            maxImages={4}
-          />
-
-          {/* Tag Users */}
-          <TouchableOpacity
-            style={styles.tagButton}
-            onPress={() => setShowTagModal(true)}
-            accessibilityLabel="Tag users"
-            accessibilityRole="button"
-          >
-            <Ionicons
-              name="people-outline"
-              size={20}
-              color={colors.primary}
-            />
-            <Text style={styles.tagButtonText}>
-              {taggedUserIds.length > 0
-                ? `${taggedUserIds.length} user${taggedUserIds.length > 1 ? 's' : ''} tagged`
-                : 'Tag users'}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Share Toggle */}
-          <View style={styles.shareRow}>
-            <View style={styles.shareTextWrapper}>
-              <Text style={styles.shareLabel}>Share to feed</Text>
-              <Text style={styles.shareHint}>
-                Make this session visible to your followers
-              </Text>
-            </View>
-            <Switch
-              value={isPublished}
-              onValueChange={setIsPublished}
-              trackColor={{ false: colors.border, true: colors.primary }}
-              thumbColor={colors.background}
-              accessibilityLabel="Share to feed toggle"
-            />
-          </View>
-
-          {/* Action Buttons */}
-          <View style={styles.actionRow}>
-            <TouchableOpacity
-              style={styles.activityButton}
-              onPress={handleStartActivity}
-              accessibilityLabel="Start activity timer"
-              accessibilityRole="button"
-            >
-              <Ionicons
-                name="timer-outline"
-                size={20}
-                color={colors.primary}
-              />
-              <Text style={styles.activityButtonText}>Start Activity</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.submitButton,
-                createLog.isPending && styles.submitButtonDisabled,
-              ]}
-              onPress={handleSubmit}
-              disabled={createLog.isPending}
-              nativeID={Platform.OS === 'web' ? 'log-sheet-submit' : undefined}
-              accessibilityLabel="Log session"
-              accessibilityRole="button"
-              testID="log-sheet-submit"
-              dataSet={Platform.OS === 'web' ? { testid: 'log-sheet-submit' } : undefined}
-              {...(Platform.OS === 'web' ? ({ id: 'log-sheet-submit' } as any) : {})}
-            >
-              {createLog.isPending ? (
-                <Text style={styles.submitButtonText}>Saving...</Text>
-              ) : (
-                <>
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={20}
-                    color={colors.background}
-                  />
-                  <Text style={styles.submitButtonText}>Log It</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+                {renderFormContent()}
+              </ScrollView>
             </View>
           </View>
         </Modal>
@@ -429,19 +427,7 @@ export default function LogSheet({
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Header */}
-            <Text style={styles.sheetTitle}>Log a Session</Text>
-            <Text style={styles.fieldLabel}>Title *</Text>
-            <TextInput
-              style={styles.titleInput}
-              placeholder="What session is this?"
-              placeholderTextColor={colors.textTertiary}
-              value={title}
-              onChangeText={setTitle}
-              maxLength={120}
-              returnKeyType="next"
-            />
-            <Text style={styles.submitButtonText}>Use the web version for full form</Text>
+            {renderFormContent()}
           </BottomSheetScrollView>
         </BottomSheet>
       ) : null}

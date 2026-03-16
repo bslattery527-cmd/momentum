@@ -50,18 +50,15 @@ describe('LogSheet', () => {
   const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(jest.fn());
   const originalPlatform = Platform.OS;
 
-  beforeAll(() => {
+  beforeEach(() => {
+    mockMutateAsync.mockReset();
+    mockStartStopwatch.mockReset();
+    alertSpy.mockClear();
     Object.defineProperty(Platform, 'OS', { value: 'web' });
   });
 
   afterAll(() => {
     Object.defineProperty(Platform, 'OS', { value: originalPlatform });
-  });
-
-  beforeEach(() => {
-    mockMutateAsync.mockReset();
-    mockStartStopwatch.mockReset();
-    alertSpy.mockClear();
   });
 
   it('shows a validation alert when required fields are missing', async () => {
@@ -116,5 +113,16 @@ describe('LogSheet', () => {
       expect(bottomSheetRef.current.close).toHaveBeenCalled();
       expect(onSuccess).toHaveBeenCalled();
     });
+  });
+
+  it('renders the full form on native platforms', () => {
+    Object.defineProperty(Platform, 'OS', { value: 'ios' });
+
+    render(<LogSheet onClose={jest.fn()} />);
+
+    expect(screen.getByText('Tasks')).toBeTruthy();
+    expect(screen.getByText('Tag users')).toBeTruthy();
+    expect(screen.getByLabelText('Log session')).toBeTruthy();
+    expect(screen.queryByText('Use the web version for full form')).toBeNull();
   });
 });
