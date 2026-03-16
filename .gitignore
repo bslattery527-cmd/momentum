@@ -44,3 +44,5 @@ bundle_check.txt
 # Expo
 .expo/
 *.tsbuildinfo
+
+momentum-app/ios/
