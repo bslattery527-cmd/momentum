@@ -240,13 +240,14 @@ export default function LogSheet({
           transparent={true}
           onRequestClose={onClose}
         >
-          <Pressable style={styles.modalOverlay} onPress={onClose}>
-            <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
+          <View style={styles.modalOverlay}>
+            <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+            <View style={styles.modalContent}>
               <View style={styles.modalHandle}>
                 <View style={styles.handleIndicator} />
-                <Pressable onPress={onClose} style={styles.closeButton} hitSlop={8}>
+                <TouchableOpacity onPress={onClose} style={styles.closeButton} hitSlop={8}>
                   <Ionicons name="close" size={24} color={colors.textSecondary} />
-                </Pressable>
+                </TouchableOpacity>
               </View>
               <ScrollView
                 contentContainerStyle={styles.scrollContent}
@@ -393,9 +394,9 @@ export default function LogSheet({
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </Pressable>
-    </Pressable>
-  </Modal>
+            </View>
+          </View>
+        </Modal>
       ) : BottomSheet ? (
         <BottomSheet
           ref={bottomSheetRef}
@@ -458,14 +459,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: spacing.md,
-    paddingBottom: spacing.xs,
+    minHeight: 56,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
     paddingHorizontal: spacing.lg,
+    position: 'relative',
+    zIndex: 2,
   },
   closeButton: {
     position: 'absolute',
     right: spacing.lg,
-    top: spacing.md,
+    top: spacing.sm,
+    zIndex: 3,
   },
   sheetBackground: {
     backgroundColor: colors.background,

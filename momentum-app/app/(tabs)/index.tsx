@@ -1,36 +1,27 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
   FlatList,
   StyleSheet,
   ActivityIndicator,
-  Pressable,
   RefreshControl,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation } from '@tanstack/react-query';
 import {
   Colors,
   Typography,
   Spacing,
-  BorderRadius,
-  Shadows,
-  Layout,
 } from '@/constants/theme';
 import { useHomeFeed, useCurrentGoal } from '@/hooks/useFeed';
 import { FeedCard } from '@/components/feed/FeedCard';
 import { GoalWidget } from '@/components/profile/GoalWidget';
-import LogSheet from '@/components/log/LogSheet';
 import { api } from '@/lib/api';
 import { queryClient } from '@/lib/queryClient';
 import type { FeedItem } from '@/types';
 
 export default function HomeScreen() {
-  const [logSheetVisible, setLogSheetVisible] = useState(false);
-  const bottomSheetRef = useRef<any>(null);
-
   const {
     data,
     isLoading,
@@ -189,26 +180,6 @@ export default function HomeScreen() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
-
-      {/* ─── FAB for Log Creation ─────────────────────────── */}
-      <Pressable
-        style={styles.fab}
-        onPress={() => setLogSheetVisible(true)}
-      >
-        <Ionicons name="add" size={28} color={Colors.textInverse} />
-      </Pressable>
-
-      {/* ─── Log Creation Bottom Sheet ───────────────────── */}
-      {logSheetVisible && (
-        <LogSheet
-          bottomSheetRef={bottomSheetRef}
-          onClose={() => setLogSheetVisible(false)}
-          onSuccess={() => {
-            setLogSheetVisible(false);
-            refetch();
-          }}
-        />
-      )}
     </View>
   );
 }
@@ -250,17 +221,5 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
-  },
-  fab: {
-    position: 'absolute',
-    bottom: Spacing.xl,
-    right: Spacing.xl,
-    width: Layout.fabSize,
-    height: Layout.fabSize,
-    borderRadius: Layout.fabSize / 2,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Shadows.large,
   },
 });
