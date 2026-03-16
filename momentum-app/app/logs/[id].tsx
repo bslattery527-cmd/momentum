@@ -9,10 +9,12 @@ import {
   Pressable,
   Alert,
   RefreshControl,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Colors,
   Typography,
@@ -74,6 +76,9 @@ function formatTime(timestamp: string): string {
 export default function LogDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthStore();
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const isCompactLayout = width < 768;
 
   const {
     data: log,
@@ -202,7 +207,7 @@ export default function LogDetailScreen() {
       <Stack.Screen
         options={{
           headerTitle: 'Log Detail',
-          headerShown: true,
+          headerShown: !isCompactLayout,
           headerBackTitle: 'Back',
           headerRight: () =>
             isOwner ? (
@@ -218,7 +223,10 @@ export default function LogDetailScreen() {
       />
       <ScrollView
         style={styles.container}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          isCompactLayout && styles.contentCompact,
+        ]}
         refreshControl={
           <RefreshControl
             refreshing={false}
@@ -227,6 +235,36 @@ export default function LogDetailScreen() {
           />
         }
       >
+        {isCompactLayout && (
+          <View
+            style={[
+              styles.mobileTopBar,
+              { paddingTop: insets.top + Spacing.sm },
+            ]}
+          >
+            <Pressable onPress={() => router.back()} style={styles.mobileTopAction}>
+              <Ionicons
+                name="chevron-back"
+                size={20}
+                color={Colors.text}
+              />
+              <Text style={styles.mobileTopActionText}>Back</Text>
+            </Pressable>
+
+            {isOwner ? (
+              <Pressable onPress={handleDelete} style={styles.mobileTopIconButton}>
+                <Ionicons
+                  name="trash-outline"
+                  size={20}
+                  color={Colors.error}
+                />
+              </Pressable>
+            ) : (
+              <View style={styles.mobileTopSpacer} />
+            )}
+          </View>
+        )}
+
         {/* ─── Title & Meta ────────────────────────────────── */}
         <Text style={styles.title}>{log.title}</Text>
 
@@ -430,6 +468,9 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.lg,
     paddingBottom: Spacing['6xl'],
   },
+  contentCompact: {
+    paddingTop: 0,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -453,6 +494,41 @@ const styles = StyleSheet.create({
   backLinkText: {
     ...Typography.bodyMedium,
     color: Colors.primary,
+  },
+  mobileTopBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: -Spacing.lg,
+    marginBottom: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.sm,
+    backgroundColor: Colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Colors.borderLight,
+  },
+  mobileTopAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.xs,
+    paddingRight: Spacing.md,
+  },
+  mobileTopActionText: {
+    ...Typography.bodyMedium,
+    color: Colors.text,
+  },
+  mobileTopIconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.backgroundSecondary,
+  },
+  mobileTopSpacer: {
+    width: 36,
+    height: 36,
   },
   title: {
     ...Typography.h2,
