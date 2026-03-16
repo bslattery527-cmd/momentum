@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 const mockPush = jest.fn();
+const mockLogout = jest.fn();
 
 jest.mock('expo-router', () => ({
   router: {
@@ -43,7 +44,7 @@ jest.mock('@/hooks/useFeed', () => ({
 
 jest.mock('@/hooks/useAuth', () => ({
   useLogout: () => ({
-    mutate: jest.fn(),
+    mutate: mockLogout,
     isPending: false,
   }),
 }));
@@ -79,6 +80,7 @@ import ProfileScreen from '../profile';
 describe('ProfileScreen', () => {
   beforeEach(() => {
     mockPush.mockReset();
+    mockLogout.mockReset();
   });
 
   it('navigates to edit profile from the header action', () => {
@@ -87,5 +89,17 @@ describe('ProfileScreen', () => {
     fireEvent.press(screen.getByLabelText('Edit profile'));
 
     expect(mockPush).toHaveBeenCalledWith('/edit-profile');
+  });
+
+  it('shows a confirmation modal before logging out', () => {
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getByLabelText('Log out'));
+
+    expect(screen.getByText('Are you sure you want to log out?')).toBeTruthy();
+
+    fireEvent.press(screen.getByText('Log out'));
+
+    expect(mockLogout).toHaveBeenCalled();
   });
 });
