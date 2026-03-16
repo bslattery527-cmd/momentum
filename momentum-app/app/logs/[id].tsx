@@ -116,26 +116,42 @@ export default function LogDetailScreen() {
   }, [log]);
 
   const celebrateMutation = useMutation({
-    mutationFn: async () => {
-      if (hasReacted) {
+    mutationFn: async ({ prevReacted }: { prevReacted: boolean }) => {
+      if (prevReacted) {
         await api.delete(`/logs/${id}/reactions`);
       } else {
         await api.post(`/logs/${id}/reactions`);
       }
     },
-    onMutate: () => {
-      setHasReacted(!hasReacted);
-      setReactionCount((prev) => prev + (hasReacted ? -1 : 1));
+    onMutate: ({
+      prevReacted,
+      prevCount,
+    }: {
+      prevReacted: boolean;
+      prevCount: number;
+    }) => {
+      setHasReacted(!prevReacted);
+      setReactionCount(prevReacted ? Math.max(0, prevCount - 1) : prevCount + 1);
+
+      return { prevReacted, prevCount };
     },
-    onError: () => {
-      setHasReacted(hasReacted);
-      setReactionCount((prev) => prev + (hasReacted ? 1 : -1));
+    onError: (_error, _vars, context) => {
+      if (!context) return;
+      setHasReacted(context.prevReacted);
+      setReactionCount(context.prevCount);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['logs', id] });
       queryClient.invalidateQueries({ queryKey: ['feed'] });
     },
   });
+
+  const handleCelebratePress = useCallback(() => {
+    celebrateMutation.mutate({
+      prevReacted: hasReacted,
+      prevCount: reactionCount,
+    });
+  }, [celebrateMutation, hasReacted, reactionCount]);
 
   // ─── Delete Log Mutation ──────────────────────────────────────────
 
@@ -365,7 +381,7 @@ export default function LogDetailScreen() {
               styles.celebrateButton,
               hasReacted && styles.celebrateButtonActive,
             ]}
-            onPress={() => celebrateMutation.mutate()}
+            onPress={handleCelebratePress}
             disabled={celebrateMutation.isPending}
           >
             <Text style={{ fontSize: 18 }}>{'\u{1F44F}'}</Text>
