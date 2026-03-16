@@ -76,6 +76,7 @@ function matchRoute(
     { method: 'GET', pattern: /^users\/me\/logs$/, route: 'GET /users/me/logs' },
     { method: 'GET', pattern: /^users\/me\/goals\/current$/, route: 'GET /users/me/goals/current' },
     { method: 'GET', pattern: /^users\/me\/streak$/, route: 'GET /users/me/streak' },
+    { method: 'PUT', pattern: /^users\/me$/, route: 'PUT /users/me' },
     { method: 'GET', pattern: /^users\/me$/, route: 'GET /users/me' },
 
     // Users - search
@@ -218,6 +219,51 @@ export function handleDemoRequest(
         log_count: demoUserProfile.log_count,
       };
       return { responseData: { data: me }, status: 200 };
+    }
+
+    case 'PUT /users/me': {
+      if (typeof data?.display_name === 'string') {
+        demoUser.display_name = data.display_name;
+        demoUserProfile.display_name = data.display_name;
+      }
+      if ('bio' in (data || {})) {
+        demoUser.bio = data.bio;
+        demoUserProfile.bio = data.bio;
+      }
+      if ('goal_category' in (data || {})) {
+        demoUser.goal_category = data.goal_category;
+      }
+      if ('avatar_url' in (data || {})) {
+        demoUser.avatar_url = data.avatar_url;
+        demoUserProfile.avatar_url = data.avatar_url;
+      }
+
+      mutableFeedItems = mutableFeedItems.map((item) =>
+        item.user.id === demoUser.id
+          ? {
+              ...item,
+              user: {
+                ...item.user,
+                display_name: demoUser.display_name,
+                avatar_url: demoUser.avatar_url,
+              },
+            }
+          : item,
+      );
+
+      mutableUserLogs = mutableUserLogs.map((log) => ({ ...log }));
+
+      return {
+        responseData: {
+          data: {
+            ...demoUser,
+            follower_count: demoUserProfile.follower_count,
+            following_count: demoUserProfile.following_count,
+            log_count: demoUserProfile.log_count,
+          },
+        },
+        status: 200,
+      };
     }
 
     case 'GET /users/me/logs': {

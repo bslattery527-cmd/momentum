@@ -164,7 +164,12 @@ export default function ProfileScreen() {
 
         {/* Edit Profile & Logout */}
         <View style={styles.actionRow}>
-          <Pressable style={styles.editButton}>
+          <Pressable
+            style={styles.editButton}
+            onPress={() => router.push('/edit-profile')}
+            accessibilityRole="button"
+            accessibilityLabel="Edit profile"
+          >
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </Pressable>
           <Pressable
@@ -320,6 +325,7 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
+
     </View>
   );
 }
