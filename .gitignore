@@ -46,3 +46,5 @@ bundle_check.txt
 *.tsbuildinfo
 
 momentum-app/ios/
+.logs/
+momentum-app/android/

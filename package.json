@@ -1,0 +1,18 @@
+{
+  "name": "momentum-root",
+  "private": true,
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "kill-all": "node ./scripts/kill-local-dev.mjs",
+    "ios-local": "node ./scripts/mobile-workflow.mjs ios local",
+    "ios-prod": "node ./scripts/mobile-workflow.mjs ios prod",
+    "android-local": "node ./scripts/mobile-workflow.mjs android local",
+    "android-prod": "node ./scripts/mobile-workflow.mjs android prod",
+    "ios:local": "node ./scripts/mobile-workflow.mjs ios local",
+    "ios:prod": "node ./scripts/mobile-workflow.mjs ios prod",
+    "android:local": "node ./scripts/mobile-workflow.mjs android local",
+    "android:prod": "node ./scripts/mobile-workflow.mjs android prod"
+  }
+}
