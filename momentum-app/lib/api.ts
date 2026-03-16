@@ -4,6 +4,7 @@ import { saveRefreshToken, getRefreshToken } from '@/lib/auth';
 import { router } from 'expo-router';
 import { isDemoMode, handleDemoRequest } from '@/lib/demoApi';
 import { getApiBaseUrl } from '@/lib/config';
+import { shouldAttemptTokenRefresh } from '@/lib/authRefresh';
 
 const BASE_URL = getApiBaseUrl();
 
@@ -102,7 +103,11 @@ api.interceptors.response.use(
     };
 
     // If not a 401 or already retried, reject immediately
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    if (
+      error.response?.status !== 401 ||
+      originalRequest._retry ||
+      !shouldAttemptTokenRefresh(originalRequest?.url)
+    ) {
       return Promise.reject(error);
     }
 
