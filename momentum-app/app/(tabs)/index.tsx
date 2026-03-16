@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -17,11 +17,13 @@ import {
 import { useHomeFeed, useCurrentGoal } from '@/hooks/useFeed';
 import { FeedCard } from '@/components/feed/FeedCard';
 import { GoalWidget } from '@/components/profile/GoalWidget';
+import GoalModal from '@/components/profile/GoalModal';
 import { api } from '@/lib/api';
 import { queryClient } from '@/lib/queryClient';
 import type { FeedItem } from '@/types';
 
 export default function HomeScreen() {
+  const [goalModalVisible, setGoalModalVisible] = useState(false);
   const {
     data,
     isLoading,
@@ -121,7 +123,11 @@ export default function HomeScreen() {
   const renderHeader = useCallback(
     () => (
       <View style={styles.headerContent}>
-        <GoalWidget goal={currentGoal} compact />
+        <GoalWidget
+          goal={currentGoal}
+          compact
+          onSetGoal={() => setGoalModalVisible(true)}
+        />
       </View>
     ),
     [currentGoal]
@@ -179,6 +185,10 @@ export default function HomeScreen() {
         }
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+      />
+      <GoalModal
+        visible={goalModalVisible}
+        onClose={() => setGoalModalVisible(false)}
       />
     </View>
   );

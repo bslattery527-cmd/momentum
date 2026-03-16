@@ -43,6 +43,7 @@ let mutableNotifications = [...demoNotifications];
 let mutableFeedItems = [...demoFeedItems];
 let mutableExploreFeedItems = [...demoExploreFeedItems];
 let mutableUserLogs = [...demoUserLogs];
+let mutableCurrentGoal = demoGoal;
 let mutableComments: Record<string, Comment[]> = JSON.parse(
   JSON.stringify(demoComments),
 );
@@ -272,7 +273,7 @@ export function handleDemoRequest(
     }
 
     case 'GET /users/me/goals/current': {
-      return { responseData: { data: demoGoal }, status: 200 };
+      return { responseData: { data: mutableCurrentGoal }, status: 200 };
     }
 
     case 'GET /users/me/streak': {
@@ -280,7 +281,7 @@ export function handleDemoRequest(
     }
 
     case 'POST /users/me/goals': {
-      const newGoal = {
+      mutableCurrentGoal = {
         ...demoGoal,
         id: `goal-demo-${Date.now()}`,
         type: data?.type || 'days',
@@ -290,7 +291,7 @@ export function handleDemoRequest(
         is_completed: false,
         created_at: new Date().toISOString(),
       };
-      return { responseData: { data: newGoal }, status: 201 };
+      return { responseData: { data: mutableCurrentGoal }, status: 201 };
     }
 
     // ── Users/Search ─────────────────────────────────────────────────

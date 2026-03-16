@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   Pressable,
   RefreshControl,
-  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -61,7 +60,6 @@ function timeAgo(timestamp: string): string {
 export default function ProfileScreen() {
   const { user } = useAuthStore();
   const logoutMutation = useLogout();
-  const [logoutConfirmVisible, setLogoutConfirmVisible] = useState(false);
 
   // Fetch full profile with follower/following counts
   const {
@@ -176,10 +174,8 @@ export default function ProfileScreen() {
           </Pressable>
           <Pressable
             style={styles.logoutButton}
-            onPress={() => setLogoutConfirmVisible(true)}
+            onPress={() => logoutMutation.mutate()}
             disabled={logoutMutation.isPending}
-            accessibilityRole="button"
-            accessibilityLabel="Log out"
           >
             <Ionicons name="log-out-outline" size={18} color={Colors.error} />
           </Pressable>
@@ -329,45 +325,7 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
-      <Modal
-        visible={logoutConfirmVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setLogoutConfirmVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={() => setLogoutConfirmVisible(false)}
-          />
-          <View style={styles.confirmCard}>
-            <Text style={styles.confirmTitle}>Are you sure you want to log out?</Text>
-            <View style={styles.confirmActions}>
-              <Pressable
-                style={styles.confirmCancelButton}
-                onPress={() => setLogoutConfirmVisible(false)}
-              >
-                <Text style={styles.confirmCancelText}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                style={[
-                  styles.confirmLogoutButton,
-                  logoutMutation.isPending && styles.confirmLogoutButtonDisabled,
-                ]}
-                onPress={() => {
-                  setLogoutConfirmVisible(false);
-                  logoutMutation.mutate();
-                }}
-                disabled={logoutMutation.isPending}
-              >
-                <Text style={styles.confirmLogoutText}>
-                  {logoutMutation.isPending ? 'Logging out...' : 'Log out'}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+
     </View>
   );
 }
@@ -470,58 +428,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.45)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.xl,
-  },
-  confirmCard: {
-    width: '100%',
-    maxWidth: 360,
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.xl,
-  },
-  confirmTitle: {
-    ...Typography.h4,
-    color: Colors.text,
-    textAlign: 'center',
-  },
-  confirmActions: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    marginTop: Spacing.xl,
-  },
-  confirmCancelButton: {
-    flex: 1,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: Spacing.md,
-  },
-  confirmCancelText: {
-    ...Typography.buttonSmall,
-    color: Colors.text,
-  },
-  confirmLogoutButton: {
-    flex: 1,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.error,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: Spacing.md,
-  },
-  confirmLogoutButtonDisabled: {
-    opacity: 0.7,
-  },
-  confirmLogoutText: {
-    ...Typography.buttonSmall,
-    color: Colors.textInverse,
   },
   widgetsSection: {
     marginTop: Spacing.xl,
