@@ -287,3 +287,13 @@ Agent 3's code is well-structured with good patterns (optimistic updates with ro
 - **Error handling:** API errors displayed with user-friendly Alert messages.
 - **Form validation:** LogSheet validates all required fields before submission.
 - **Cache invalidation:** Mutations properly invalidate related queries on success.
+
+### Open Product Questions
+
+- Weekly goal creation still needs product and UX polish.
+- Open questions:
+- What goal types should exist beyond `days` and `hours`, if any?
+- What fields belong in the creation flow versus advanced settings?
+- How should goal replacement, editing, and completion history be presented?
+- Should the CTA live in one place or be consistent across feed, profile, and onboarding?
+- The current implementation is functional, but it should be treated as interim until that flow is specified more clearly.
