@@ -32,6 +32,7 @@ const googleDiscovery = {
 };
 
 const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '';
+const APPLE_SIGN_IN_ENABLED = process.env.EXPO_PUBLIC_ENABLE_APPLE_SIGN_IN !== '0';
 
 function createNonce(): string {
   if (typeof globalThis !== 'undefined' && 'crypto' in globalThis) {
@@ -178,7 +179,7 @@ export default function WelcomeScreen() {
           </Pressable>
 
           {/* Apple Sign-In (iOS only) */}
-          {Platform.OS === 'ios' && (
+          {Platform.OS === 'ios' && APPLE_SIGN_IN_ENABLED && (
             <Pressable
               style={[styles.socialButton, styles.appleButton]}
               onPress={handleAppleSignIn}
