@@ -8,6 +8,7 @@
     "node": "^20.19 || ^22.12 || >=24.0"
   },
   "scripts": {
+    "postinstall": "node ../scripts/install-git-hooks.mjs",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
