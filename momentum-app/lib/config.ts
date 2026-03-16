@@ -25,13 +25,12 @@ function getLocalApiBaseUrl(): string {
  * - Manual override: set EXPO_PUBLIC_API_URL explicitly
  */
 export function getApiBaseUrl(): string {
-  const explicit = process.env.EXPO_PUBLIC_API_URL;
-  if (explicit) return explicit;
-
   if (process.env.EXPO_PUBLIC_API_MODE === 'local') {
     return getLocalApiBaseUrl();
   }
 
+  const explicit = process.env.EXPO_PUBLIC_API_URL;
+  if (explicit) return explicit;
+
   return REMOTE_API_BASE_URL;
 }
-
