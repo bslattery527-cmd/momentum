@@ -133,7 +133,7 @@ export default function LogSheet({
 
   const handleStartActivity = useCallback(async () => {
     await startStopwatch();
-    bottomSheetRef.current?.close();
+    bottomSheetRef?.current?.close();
     onStartActivity?.();
   }, [bottomSheetRef, onStartActivity]);
 
@@ -204,7 +204,7 @@ export default function LogSheet({
     try {
       await createLog.mutateAsync(payload);
       resetForm();
-      bottomSheetRef.current?.close();
+      bottomSheetRef?.current?.close();
       onSuccess?.();
     } catch (err: any) {
       const message =

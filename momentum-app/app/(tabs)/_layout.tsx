@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, Typography, Spacing, Layout, Shadows } from '@/constants/theme';
 import { api } from '@/lib/api';

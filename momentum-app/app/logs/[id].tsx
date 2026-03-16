@@ -116,7 +116,7 @@ export default function LogDetailScreen() {
   }, [log]);
 
   const celebrateMutation = useMutation({
-    mutationFn: async ({ prevReacted }: { prevReacted: boolean }) => {
+    mutationFn: async ({ prevReacted }: { prevReacted: boolean; prevCount: number }) => {
       if (prevReacted) {
         await api.delete(`/logs/${id}/reactions`);
       } else {
