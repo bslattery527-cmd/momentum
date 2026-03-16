@@ -11,6 +11,8 @@ export default defineConfig({
     globals: true,
     clearMocks: true,
     restoreMocks: true,
+    include: ['src/**/*.test.ts', 'test/**/*.test.ts'],
+    exclude: ['dist/**', 'node_modules/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

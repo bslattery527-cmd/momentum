@@ -1,6 +1,23 @@
-import { PrismaClient } from '@prisma/client';
+import 'dotenv/config';
 
-const prisma = new PrismaClient();
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+
+import { PrismaClient } from '../src/generated/prisma/index.js';
+
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL is not set');
+}
+
+const pool = new Pool({
+  connectionString: databaseUrl,
+});
+
+const prisma = new PrismaClient({
+  adapter: new PrismaPg(pool),
+});
 
 const DEFAULT_CATEGORIES = [
   { name: 'Reading',  icon: '📚', isDefault: true },
