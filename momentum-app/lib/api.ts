@@ -3,9 +3,9 @@ import { useAuthStore } from '@/store/authStore';
 import { saveRefreshToken, getRefreshToken } from '@/lib/auth';
 import { router } from 'expo-router';
 import { isDemoMode, handleDemoRequest } from '@/lib/demoApi';
+import { getApiBaseUrl } from '@/lib/config';
 
-// Configurable base URL — change for different environments
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+const BASE_URL = getApiBaseUrl();
 
 export const api = axios.create({
   baseURL: BASE_URL,
