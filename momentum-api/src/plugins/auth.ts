@@ -1,7 +1,7 @@
-import { FastifyPluginAsync, FastifyRequest } from 'fastify';
+import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import fjwt from '@fastify/jwt';
-import { JwtPayload } from '../lib/jwt';
+import type { JwtPayload } from '../lib/jwt.js';
 
 declare module 'fastify' {
   interface FastifyInstance {

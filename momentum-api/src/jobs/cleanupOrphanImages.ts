@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import prisma from '../lib/prisma';
-import { deleteS3Objects } from '../services/imageService';
+import prisma from '../lib/prisma.js';
+import { deleteS3Objects } from '../services/imageService.js';
 
 /**
  * Nightly cleanup job that purges orphaned image records.

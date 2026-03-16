@@ -1,4 +1,4 @@
-import { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync } from 'fastify';
 
 const categoryRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /categories — Get the full list of categories (no auth required)

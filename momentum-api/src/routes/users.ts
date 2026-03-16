@@ -1,5 +1,5 @@
-import { FastifyPluginAsync } from 'fastify';
-import { getAvatarUploadUrl } from '../services/imageService';
+import type { FastifyPluginAsync } from 'fastify';
+import { getAvatarUploadUrl } from '../services/imageService.js';
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/;
 

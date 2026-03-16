@@ -1,5 +1,5 @@
-import { FastifyPluginAsync } from 'fastify';
-import { sendNotification } from '../services/pushService';
+import type { FastifyPluginAsync } from 'fastify';
+import { sendNotification } from '../services/pushService.js';
 
 const reactionRoutes: FastifyPluginAsync = async (fastify) => {
   // POST /logs/:id/reactions — Celebrate a log

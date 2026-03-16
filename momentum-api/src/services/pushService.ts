@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import Expo, { ExpoPushMessage } from 'expo-server-sdk';
+import Expo, { type ExpoPushMessage } from 'expo-server-sdk';
 
 const expo = new Expo({
   accessToken: process.env.EXPO_ACCESS_TOKEN,

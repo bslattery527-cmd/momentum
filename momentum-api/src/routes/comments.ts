@@ -1,5 +1,5 @@
-import { FastifyPluginAsync } from 'fastify';
-import { sendNotification } from '../services/pushService';
+import type { FastifyPluginAsync } from 'fastify';
+import { sendNotification } from '../services/pushService.js';
 
 const commentRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /logs/:id/comments — Get comments for a log (oldest-first)

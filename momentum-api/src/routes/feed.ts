@@ -1,4 +1,4 @@
-import { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync } from 'fastify';
 
 const feedRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /feed — Home feed: published logs from followed users, reverse-chron

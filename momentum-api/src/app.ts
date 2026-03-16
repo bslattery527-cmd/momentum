@@ -1,24 +1,25 @@
-import Fastify, { FastifyInstance } from 'fastify';
+import Fastify from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import fastifySensible from '@fastify/sensible';
 
 // Plugins
-import prismaPlugin from './plugins/prisma';
-import authPlugin from './plugins/auth';
-import corsPlugin from './plugins/cors';
-import helmetPlugin from './plugins/helmet';
-import rateLimitPlugin from './plugins/rateLimit';
+import prismaPlugin from './plugins/prisma.js';
+import authPlugin from './plugins/auth.js';
+import corsPlugin from './plugins/cors.js';
+import helmetPlugin from './plugins/helmet.js';
+import rateLimitPlugin from './plugins/rateLimit.js';
 
 // Routes
-import authRoutes from './routes/auth';
-import userRoutes from './routes/users';
-import logRoutes from './routes/logs';
-import feedRoutes from './routes/feed';
-import followRoutes from './routes/follows';
-import reactionRoutes from './routes/reactions';
-import commentRoutes from './routes/comments';
-import goalRoutes from './routes/goals';
-import notificationRoutes from './routes/notifications';
-import categoryRoutes from './routes/categories';
+import authRoutes from './routes/auth.js';
+import userRoutes from './routes/users.js';
+import logRoutes from './routes/logs.js';
+import feedRoutes from './routes/feed.js';
+import followRoutes from './routes/follows.js';
+import reactionRoutes from './routes/reactions.js';
+import commentRoutes from './routes/comments.js';
+import goalRoutes from './routes/goals.js';
+import notificationRoutes from './routes/notifications.js';
+import categoryRoutes from './routes/categories.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const fastify = Fastify({
@@ -39,7 +40,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   // ── Global error handler ──────────────────────────────────────────
-  fastify.setErrorHandler((error, _request, reply) => {
+  fastify.setErrorHandler((error: any, _request, reply) => {
     const statusCode = error.statusCode || 500;
 
     // Validation errors from Fastify/AJV
@@ -48,7 +49,7 @@ export async function buildApp(): Promise<FastifyInstance> {
         error: {
           code: 'VALIDATION_ERROR',
           message: 'Request validation failed',
-          details: error.validation.map((v) => ({
+          details: error.validation.map((v: any) => ({
             field: v.instancePath || v.params?.missingProperty || 'unknown',
             message: v.message || 'Invalid value',
           })),

@@ -33,7 +33,7 @@ import {
   getAvatarUploadUrl,
   reserveImageUploads,
   validateImageUploads,
-} from '../imageService';
+} from '../imageService.js';
 
 describe('imageService', () => {
   beforeEach(() => {

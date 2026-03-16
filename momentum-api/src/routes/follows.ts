@@ -1,5 +1,5 @@
-import { FastifyPluginAsync } from 'fastify';
-import { sendNotification } from '../services/pushService';
+import type { FastifyPluginAsync } from 'fastify';
+import { sendNotification } from '../services/pushService.js';
 
 const followRoutes: FastifyPluginAsync = async (fastify) => {
   // POST /users/:username/follow — Follow a user

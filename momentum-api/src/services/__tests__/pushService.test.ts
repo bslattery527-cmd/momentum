@@ -24,7 +24,7 @@ vi.mock('expo-server-sdk', () => {
   };
 });
 
-import { sendNotification } from '../pushService';
+import { sendNotification } from '../pushService.js';
 
 describe('pushService', () => {
   beforeEach(() => {

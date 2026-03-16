@@ -1,8 +1,8 @@
-import { FastifyPluginAsync } from 'fastify';
-import { updateStreak } from '../services/streakService';
-import { updateGoalProgress } from '../services/goalService';
-import { validateImageUploads, reserveImageUploads, commitImagesToLog, deleteS3Objects } from '../services/imageService';
-import { sendNotification } from '../services/pushService';
+import type { FastifyPluginAsync } from 'fastify';
+import { updateStreak } from '../services/streakService.js';
+import { updateGoalProgress } from '../services/goalService.js';
+import { validateImageUploads, reserveImageUploads, commitImagesToLog, deleteS3Objects } from '../services/imageService.js';
+import { sendNotification } from '../services/pushService.js';
 
 const logRoutes: FastifyPluginAsync = async (fastify) => {
   // POST /logs — Create a new work log

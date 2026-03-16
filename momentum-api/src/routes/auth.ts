@@ -1,9 +1,10 @@
-import { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync } from 'fastify';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import jwksClient from 'jwks-rsa';
-import { JWT_ACCESS_EXPIRES_IN, JWT_REFRESH_EXPIRES_IN, JwtPayload } from '../lib/jwt';
+import { JWT_ACCESS_EXPIRES_IN, JWT_REFRESH_EXPIRES_IN } from '../lib/jwt.js';
+import type { JwtPayload } from '../lib/jwt.js';
 
 const BCRYPT_ROUNDS = 12;
 const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/;
@@ -79,6 +80,32 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
                     created_at: { type: 'string' },
                   },
                 },
+              },
+            },
+          },
+        },
+        400: {
+          type: 'object',
+          properties: {
+            error: {
+              type: 'object',
+              properties: {
+                code: { type: 'string' },
+                message: { type: 'string' },
+                details: { type: 'array' },
+              },
+            },
+          },
+        },
+        409: {
+          type: 'object',
+          properties: {
+            error: {
+              type: 'object',
+              properties: {
+                code: { type: 'string' },
+                message: { type: 'string' },
+                details: { type: 'array' },
               },
             },
           },

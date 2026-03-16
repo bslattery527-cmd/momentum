@@ -1,6 +1,6 @@
-import { FastifyPluginAsync } from 'fastify';
-import { getCurrentGoal, createGoal } from '../services/goalService';
-import { getStreak } from '../services/streakService';
+import type { FastifyPluginAsync } from 'fastify';
+import { getCurrentGoal, createGoal } from '../services/goalService.js';
+import { getStreak } from '../services/streakService.js';
 
 const goalRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /users/me/goals/current — Get active weekly goal

@@ -1,6 +1,6 @@
-import { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
-import prisma from '../lib/prisma';
+import prisma from '../lib/prisma.js';
 
 declare module 'fastify' {
   interface FastifyInstance {

@@ -1,4 +1,4 @@
-import { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync } from 'fastify';
 
 const notificationRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /notifications — Get notifications (paginated)

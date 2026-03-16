@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createGoal, getCurrentGoal, updateGoalProgress } from '../goalService';
+import { createGoal, getCurrentGoal, updateGoalProgress } from '../goalService.js';
 
 const NOW = new Date('2026-03-18T12:00:00.000Z');
 const WEEK_START = new Date('2026-03-16T00:00:00.000Z');

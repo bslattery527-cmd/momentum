@@ -1,5 +1,5 @@
-import { buildApp } from './app';
-import { startCleanupJob } from './jobs/cleanupOrphanImages';
+import { buildApp } from './app.js';
+import { startCleanupJob } from './jobs/cleanupOrphanImages.js';
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const HOST = process.env.HOST || '0.0.0.0';
