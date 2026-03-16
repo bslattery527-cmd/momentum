@@ -11,7 +11,7 @@ import {
   RefreshControl,
   useWindowDimensions,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -384,7 +384,11 @@ export default function LogDetailScreen() {
             onPress={handleCelebratePress}
             disabled={celebrateMutation.isPending}
           >
-            <Text style={{ fontSize: 18 }}>{'\u{1F44F}'}</Text>
+            <MaterialCommunityIcons
+              name="hand-clap"
+              size={18}
+              color={hasReacted ? Colors.celebrate : Colors.textSecondary}
+            />
             <Text
               style={[
                 styles.celebrateText,

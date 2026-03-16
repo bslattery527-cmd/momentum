@@ -6,6 +6,7 @@ import {
   Animated,
   View,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useToggleReaction } from '@/hooks/useReactions';
 import { colors, spacing, typography } from '@/constants/theme';
 
@@ -225,14 +226,18 @@ export default function ReactionButton({
               {i % 2 === 0 ? '\u2728' : '\u{1F44F}'}
             </Animated.Text>
           ))}
-          <Animated.Text
+          <Animated.View
             style={[
-              styles.emoji,
+              styles.icon,
               { transform: [{ scale: scaleAnim }, { rotate }] },
             ]}
           >
-            {'\u{1F44F}'}
-          </Animated.Text>
+            <MaterialCommunityIcons
+              name="hand-clap"
+              size={18}
+              color={hasReacted ? colors.primary : colors.textSecondary}
+            />
+          </Animated.View>
         </View>
         {count > 0 && (
           <Text style={[styles.count, hasReacted && styles.countActive]}>
@@ -267,8 +272,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  emoji: {
-    fontSize: 18,
+  icon: {
+    width: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   burstParticle: {
     position: 'absolute',

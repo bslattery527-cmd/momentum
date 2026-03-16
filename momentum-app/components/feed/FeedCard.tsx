@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, Pressable, Image, Animated, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import {
   Colors,
@@ -226,22 +226,36 @@ export function FeedCard({ item, onCelebrate }: FeedCardProps) {
           dataSet={Platform.OS === 'web' ? { testid: `celebrate-${item.id}` } : undefined}
           {...(Platform.OS === 'web' ? ({ id: `celebrate-${item.id}` } as any) : {})}
         >
-          <Animated.Text
-            style={{
-              fontSize: 18,
-              transform: [
-                { scale: clapScale },
-                {
-                  rotate: clapRotate.interpolate({
-                    inputRange: [-1, 0, 1],
-                    outputRange: ['-15deg', '0deg', '15deg'],
-                  }),
-                },
-              ],
-            }}
+          <Animated.View
+            style={[
+              styles.actionIcon,
+              {
+                transform: [
+                  { scale: clapScale },
+                  {
+                    rotate: clapRotate.interpolate({
+                      inputRange: [-1, 0, 1],
+                      outputRange: ['-15deg', '0deg', '15deg'],
+                    }),
+                  },
+                ],
+              },
+            ]}
           >
-            {'\u{1F44F}'}
-          </Animated.Text>
+            <MaterialCommunityIcons
+              name="hand-clap"
+              size={18}
+              color={item.has_reacted ? Colors.celebrate : Colors.textSecondary}
+            />
+          </Animated.View>
+          <Text
+            style={[
+              styles.actionLabel,
+              item.has_reacted && styles.actionCountActive,
+            ]}
+          >
+            {item.has_reacted ? 'Clapped' : 'Clap'}
+          </Text>
           {item.reaction_count > 0 && (
             <Text
               style={[
@@ -398,12 +412,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-  },
-  actionButtonActive: {
-    backgroundColor: Colors.primaryLight ?? '#E8F0FE',
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderRadius: 16,
+    minHeight: 28,
+  },
+  actionButtonActive: {
+    backgroundColor: Colors.primaryLight ?? '#E8F0FE',
+  },
+  actionIcon: {
+    width: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionLabel: {
+    ...Typography.smallMedium,
+    color: Colors.textSecondary,
   },
   actionCount: {
     ...Typography.small,
