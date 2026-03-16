@@ -61,6 +61,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Home',
+            tabBarButtonTestID: 'home-tab',
             headerTitle: 'Momentum',
             headerTitleStyle: {
               ...Typography.h3,
@@ -79,6 +80,7 @@ export default function TabLayout() {
           name="explore"
           options={{
             title: 'Explore',
+            tabBarButtonTestID: 'explore-tab',
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? 'compass' : 'compass-outline'}
@@ -105,12 +107,16 @@ export default function TabLayout() {
             },
             tabBarButton: ({ accessibilityLabel, accessibilityState, testID, style }) => (
               <Pressable
-                accessibilityLabel={accessibilityLabel}
+                accessibilityLabel={accessibilityLabel || 'Create session'}
                 accessibilityState={accessibilityState}
-                testID={testID}
+                nativeID={Platform.OS === 'web' ? 'create-tab' : undefined}
+                dataSet={{ testid: testID ?? 'create-tab' }}
+                testID={testID ?? 'create-tab'}
+                {...(Platform.OS === 'web' ? ({ id: 'create-tab' } as any) : {})}
                 style={[style, styles.createButton]}
                 onPress={() => setLogSheetVisible(true)}
                 hitSlop={12}
+                accessibilityRole="button"
               >
                 <View pointerEvents="none" style={styles.createButtonInner}>
                   <Ionicons name="add" size={28} color={Colors.textInverse} />
@@ -123,6 +129,7 @@ export default function TabLayout() {
           name="notifications"
           options={{
             title: 'Notifications',
+            tabBarButtonTestID: 'notifications-tab',
             tabBarIcon: ({ color, focused }) => (
               <View>
                 <Ionicons
@@ -145,6 +152,7 @@ export default function TabLayout() {
           name="profile"
           options={{
             title: 'Profile',
+            tabBarButtonTestID: 'profile-tab',
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? 'person' : 'person-outline'}

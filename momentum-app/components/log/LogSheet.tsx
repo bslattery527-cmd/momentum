@@ -242,10 +242,24 @@ export default function LogSheet({
         >
           <View style={styles.modalOverlay}>
             <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-            <View style={styles.modalContent}>
+            <View
+              style={styles.modalContent}
+              nativeID={Platform.OS === 'web' ? 'log-sheet' : undefined}
+              testID="log-sheet"
+              dataSet={Platform.OS === 'web' ? { testid: 'log-sheet' } : undefined}
+              {...(Platform.OS === 'web' ? ({ id: 'log-sheet' } as any) : {})}
+            >
               <View style={styles.modalHandle}>
                 <View style={styles.handleIndicator} />
-                <TouchableOpacity onPress={onClose} style={styles.closeButton} hitSlop={8}>
+                <TouchableOpacity
+                  onPress={onClose}
+                  style={styles.closeButton}
+                  hitSlop={8}
+                  nativeID={Platform.OS === 'web' ? 'log-sheet-close' : undefined}
+                  testID="log-sheet-close"
+                  dataSet={Platform.OS === 'web' ? { testid: 'log-sheet-close' } : undefined}
+                  {...(Platform.OS === 'web' ? ({ id: 'log-sheet-close' } as any) : {})}
+                >
                   <Ionicons name="close" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
@@ -376,8 +390,12 @@ export default function LogSheet({
               ]}
               onPress={handleSubmit}
               disabled={createLog.isPending}
+              nativeID={Platform.OS === 'web' ? 'log-sheet-submit' : undefined}
               accessibilityLabel="Log session"
               accessibilityRole="button"
+              testID="log-sheet-submit"
+              dataSet={Platform.OS === 'web' ? { testid: 'log-sheet-submit' } : undefined}
+              {...(Platform.OS === 'web' ? ({ id: 'log-sheet-submit' } as any) : {})}
             >
               {createLog.isPending ? (
                 <Text style={styles.submitButtonText}>Saving...</Text>

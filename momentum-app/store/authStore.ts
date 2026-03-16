@@ -73,9 +73,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return;
       }
 
-      // Attempt silent token refresh
-      // Import api dynamically to avoid circular dependencies
-      const { api } = await import('@/lib/api');
+      // Load lazily to avoid a top-level cycle with the API client.
+      const { api } = require('@/lib/api') as typeof import('@/lib/api');
       const refreshResponse = await api.post('/auth/refresh', {
         refresh_token: refreshToken,
       });

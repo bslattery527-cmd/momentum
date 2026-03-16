@@ -47,6 +47,7 @@ export default function DurationPicker({
             <select
               value={hours}
               onChange={(e: any) => handleHourChange(Number(e.target.value))}
+              aria-label={label ? `${label} hours` : 'Hours'}
               style={{
                 width: '100%',
                 height: 44,
@@ -73,6 +74,7 @@ export default function DurationPicker({
             <select
               value={minutes}
               onChange={(e: any) => handleMinuteChange(Number(e.target.value))}
+              aria-label={label ? `${label} minutes` : 'Minutes'}
               style={{
                 width: '100%',
                 height: 44,

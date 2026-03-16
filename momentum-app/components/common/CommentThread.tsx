@@ -232,7 +232,10 @@ export default function CommentThread({
           returnKeyType="send"
           onSubmitEditing={handlePost}
           blurOnSubmit
+          nativeID={Platform.OS === 'web' ? 'comment-input' : undefined}
           accessibilityLabel="Comment input"
+          dataSet={Platform.OS === 'web' ? { testid: 'comment-input' } : undefined}
+          {...(Platform.OS === 'web' ? ({ id: 'comment-input' } as any) : {})}
         />
         <TouchableOpacity
           style={[
@@ -241,8 +244,11 @@ export default function CommentThread({
           ]}
           onPress={handlePost}
           disabled={!commentText.trim() || postComment.isPending}
+          nativeID={Platform.OS === 'web' ? 'post-comment-button' : undefined}
           accessibilityLabel="Post comment"
           accessibilityRole="button"
+          dataSet={Platform.OS === 'web' ? { testid: 'post-comment-button' } : undefined}
+          {...(Platform.OS === 'web' ? ({ id: 'post-comment-button' } as any) : {})}
         >
           {postComment.isPending ? (
             <ActivityIndicator size="small" color={colors.background} />

@@ -308,10 +308,20 @@ export function handleDemoRequest(
     }
 
     case 'POST /users/:username/follow': {
+      const user = demoUsers.find((u) => u.username === params.username);
+      if (user) {
+        user.is_following = true;
+        user.follower_count += 1;
+      }
       return { responseData: {}, status: 201 };
     }
 
     case 'DELETE /users/:username/follow': {
+      const user = demoUsers.find((u) => u.username === params.username);
+      if (user) {
+        user.is_following = false;
+        user.follower_count = Math.max(0, user.follower_count - 1);
+      }
       return { responseData: {}, status: 204 };
     }
 
@@ -462,7 +472,7 @@ export function handleDemoRequest(
 
     case 'GET /notifications/unread-count': {
       const count = mutableNotifications.filter((n) => !n.is_read).length;
-      return { responseData: { data: { count } }, status: 200 };
+      return { responseData: { data: { unread_count: count } }, status: 200 };
     }
 
     case 'PUT /notifications/:id/read': {

@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, Pressable, Image, Animated } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import {
@@ -123,7 +123,15 @@ export function FeedCard({ item, onCelebrate }: FeedCardProps) {
   }, [item.id]);
 
   return (
-    <Pressable style={styles.card} onPress={handleCardPress}>
+    <Pressable
+      style={styles.card}
+      onPress={handleCardPress}
+      accessibilityLabel={`Open log ${item.title}`}
+      nativeID={Platform.OS === 'web' ? `feed-card-${item.id}` : undefined}
+      testID={`feed-card-${item.id}`}
+      dataSet={Platform.OS === 'web' ? { testid: `feed-card-${item.id}` } : undefined}
+      {...(Platform.OS === 'web' ? ({ id: `feed-card-${item.id}` } as any) : {})}
+    >
       {/* ─── User Info Row ───────────────────────────────── */}
       <View style={styles.userRow}>
         <Pressable onPress={handleUserPress} style={styles.userInfo}>
@@ -209,6 +217,14 @@ export function FeedCard({ item, onCelebrate }: FeedCardProps) {
             item.has_reacted && styles.actionButtonActive,
           ]}
           hitSlop={8}
+          nativeID={Platform.OS === 'web' ? `celebrate-${item.id}` : undefined}
+          accessibilityLabel={
+            item.has_reacted
+              ? `Remove celebration from ${item.title}`
+              : `Celebrate ${item.title}`
+          }
+          dataSet={Platform.OS === 'web' ? { testid: `celebrate-${item.id}` } : undefined}
+          {...(Platform.OS === 'web' ? ({ id: `celebrate-${item.id}` } as any) : {})}
         >
           <Animated.Text
             style={{
@@ -242,6 +258,10 @@ export function FeedCard({ item, onCelebrate }: FeedCardProps) {
           onPress={handleCommentPress}
           style={styles.actionButton}
           hitSlop={8}
+          nativeID={Platform.OS === 'web' ? `comment-${item.id}` : undefined}
+          accessibilityLabel={`Open comments for ${item.title}`}
+          dataSet={Platform.OS === 'web' ? { testid: `comment-${item.id}` } : undefined}
+          {...(Platform.OS === 'web' ? ({ id: `comment-${item.id}` } as any) : {})}
         >
           <Ionicons
             name="chatbubble-outline"

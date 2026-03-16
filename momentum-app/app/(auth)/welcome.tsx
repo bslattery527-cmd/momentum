@@ -215,6 +215,10 @@ export default function WelcomeScreen() {
             <Pressable
               style={[styles.socialButton, styles.demoButton]}
               onPress={handleDemoMode}
+              nativeID={Platform.OS === 'web' ? 'demo-mode-button' : undefined}
+              testID="demo-mode-button"
+              dataSet={Platform.OS === 'web' ? { testid: 'demo-mode-button' } : undefined}
+              {...(Platform.OS === 'web' ? ({ id: 'demo-mode-button' } as any) : {})}
             >
               <Ionicons name="flask-outline" size={20} color={Colors.textSecondary} />
               <Text style={[styles.socialButtonText, styles.demoButtonText]}>

@@ -92,6 +92,7 @@ export default function TaskInput({
                 <select
                   value={task.category_id}
                   onChange={(e: any) => updateField('category_id', e.target.value)}
+                  aria-label={`Task ${index + 1} category`}
                   style={{
                     width: '100%',
                     height: 40,
