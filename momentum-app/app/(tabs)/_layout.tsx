@@ -92,37 +92,12 @@ export default function TabLayout() {
         />
         <Tabs.Screen
           name="create"
-          listeners={{
-            tabPress: (e) => {
-              e.preventDefault();
-              setLogSheetVisible(true);
-            },
-          }}
           options={{
             title: '',
             headerShown: false,
             tabBarLabel: '',
-            tabBarItemStyle: {
-              overflow: 'visible',
-            },
-            tabBarButton: ({ accessibilityLabel, accessibilityState, testID, style }) => (
-              <Pressable
-                accessibilityLabel={accessibilityLabel || 'Create session'}
-                accessibilityState={accessibilityState}
-                nativeID={Platform.OS === 'web' ? 'create-tab' : undefined}
-                dataSet={{ testid: testID ?? 'create-tab' }}
-                testID={testID ?? 'create-tab'}
-                {...(Platform.OS === 'web' ? ({ id: 'create-tab' } as any) : {})}
-                style={[style, styles.createButton]}
-                onPress={() => setLogSheetVisible(true)}
-                hitSlop={12}
-                accessibilityRole="button"
-              >
-                <View pointerEvents="none" style={styles.createButtonInner}>
-                  <Ionicons name="add" size={28} color={Colors.textInverse} />
-                </View>
-              </Pressable>
-            ),
+            tabBarItemStyle: styles.createTabSpacer,
+            tabBarButton: () => <View pointerEvents="none" style={styles.createTabSpacer} />,
           }}
         />
         <Tabs.Screen
@@ -164,6 +139,24 @@ export default function TabLayout() {
         />
       </Tabs>
 
+      <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
+        <Pressable
+          accessibilityLabel="Create session"
+          nativeID={Platform.OS === 'web' ? 'create-tab' : undefined}
+          dataSet={{ testid: 'create-tab' }}
+          testID="create-tab"
+          {...(Platform.OS === 'web' ? ({ id: 'create-tab' } as any) : {})}
+          style={styles.createButtonOverlay}
+          onPress={() => setLogSheetVisible(true)}
+          hitSlop={12}
+          accessibilityRole="button"
+        >
+          <View pointerEvents="none" style={styles.createButtonInner}>
+            <Ionicons name="add" size={28} color={Colors.textInverse} />
+          </View>
+        </Pressable>
+      </View>
+
       {logSheetVisible && (
         <LogSheet
           bottomSheetRef={bottomSheetRef}
@@ -176,8 +169,17 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  createButton: {
-    top: -10,
+  createTabSpacer: {
+    flex: 1,
+  },
+  createButtonOverlay: {
+    position: 'absolute',
+    left: '50%',
+    bottom: 28,
+    marginLeft: -(Layout.fabSize / 2),
+    width: Layout.fabSize,
+    height: Layout.fabSize,
+    borderRadius: Layout.fabSize / 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
