@@ -33,6 +33,22 @@ const googleDiscovery = {
 
 const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '';
 
+function createNonce(): string {
+  if (typeof globalThis !== 'undefined' && 'crypto' in globalThis) {
+    if (typeof globalThis.crypto.randomUUID === 'function') {
+      return globalThis.crypto.randomUUID();
+    }
+
+    if (typeof globalThis.crypto.getRandomValues === 'function') {
+      const bytes = new Uint8Array(16);
+      globalThis.crypto.getRandomValues(bytes);
+      return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    }
+  }
+
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 export default function WelcomeScreen() {
   const googleAuth = useGoogleAuth();
   const appleAuth = useAppleAuth();
@@ -54,6 +70,10 @@ export default function WelcomeScreen() {
         scopes: ['openid', 'profile', 'email'],
         redirectUri,
         responseType: AuthSession.ResponseType.IdToken,
+        usePKCE: false,
+        extraParams: {
+          nonce: createNonce(),
+        },
       });
 
       const result = await request.promptAsync(googleDiscovery);
