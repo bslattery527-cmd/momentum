@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+staged_files="$(git diff --cached --name-only --diff-filter=ACMR)"
+
+if [[ -z "$staged_files" ]]; then
+  exit 0
+fi
+
+run_api=0
+run_app=0
+
+while IFS= read -r path; do
+  case "$path" in
+    momentum-api/*) run_api=1 ;;
+    momentum-app/*) run_app=1 ;;
+  esac
+done <<< "$staged_files"
+
+if [[ "$run_api" -eq 1 ]]; then
+  echo "pre-commit: validating momentum-api"
+  (
+    cd momentum-api
+    npm run prisma:generate >/dev/null
+    npm run build
+    DATABASE_URL="${DATABASE_URL:-postgresql://hook:hook@127.0.0.1:5432/momentum_hook}" \
+      node --input-type=module -e "import('./dist/lib/prisma.js')"
+  )
+fi
+
+if [[ "$run_app" -eq 1 ]]; then
+  echo "pre-commit: validating momentum-app"
+  (
+    cd momentum-app
+    npm run typecheck
+  )
+fi
