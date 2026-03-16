@@ -44,6 +44,3 @@ bundle_check.txt
 # Expo
 .expo/
 *.tsbuildinfo
-
-# Prisma
-momentum-api/prisma/migrations/
